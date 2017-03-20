@@ -1,7 +1,7 @@
 # doc-mqtt
 Documentationsprojekt für MQTT-Server-VM, ActiveMQ etc.
 
-# 1) SSL-Verschlüsselung (siehe http://activemq.apache.org/how-do-i-use-ssl.html)
+# 1) SSL-Verschlüsselung
 
 Einfache Möglichkeit mittels einem selbsterstellten und selbstsignierten Zertifikat:
 
@@ -52,6 +52,8 @@ Auszug aus der activemq.xml:
             <transportConnector name="ws" uri="ws://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/ -->
         </transportConnectors>
 ```
+siehe http://activemq.apache.org/how-do-i-use-ssl.html
+
 ## e) Den Keystore in Jetty einbinden
 ActiveMQ verwendet für seine Webadmin-Oberfläche Apache Jetty. Damit diese über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
 Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - aber noch auskommentierte - Einträge, zuvor in der activemq.xml muss Pfad und Passwort des Keystores hinterlegt werden:
