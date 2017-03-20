@@ -2,7 +2,7 @@
 Documentationsprojekt für MQTT-Server-VM, ActiveMQ etc.
 
 # 1) SSL-Verschlüsselung (siehe http://activemq.apache.org/how-do-i-use-ssl.html)
----
+
 Einfache Möglichkeit mittels einem selbsterstellten und selbstsignierten Zertifikat:
 
 ## a) Einen Keystore mit einem selbstsignierten Private-Key erstellen:
@@ -45,7 +45,7 @@ Auszug aus der activemq.xml:
             <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
             <!-- <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/> -->
             <transportConnector name="openwire" uri="ssl://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
-            <transportConnector name="mqtt+ssl" uri="mqtt://0.0.0.0:8883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+            <transportConnector name="mqtt+ssl" uri="mqtt+ssl://0.0.0.0:8883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
             <!-- transportConnector name="amqp" uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
             <transportConnector name="stomp" uri="stomp://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
             <transportConnector name="mqtt" uri="mqtt://0.0.0.0:1883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
@@ -79,15 +79,19 @@ Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumen
 https://wiki.eclipse.org/Jetty/Howto/Configure_SSL
 
 # 2) Einrichtung der Benutzer
----
+
 ## a) Benutzer der Jetty-Webmin
 Die Benutzer, die sich an der Webmin-Oberfläche anmelden dürfen, werden in der  <ACTIVEMQ_INST>/conf/jetty-realm.properties definiert.
 
 ## b) Benutzerberechtigungen der Konnektoren
-Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der activemq.xml mittels des <SimpleAuthenticationPlugin>:
-Über einen entsprechenden <authentication>-Eintrag fügt man einen neuen Benutzer, sowie Passwort und die Gruppenzugehörigkeit hinzu.
+Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der activemq.xml mittels des SimpleAuthenticationPlugin:
+Über einen entsprechenden authentication-Eintrag fügt man einen neuen Benutzer, sowie Passwort und die Gruppenzugehörigkeit hinzu.
 
-Über das <authorizationPlugin> können dann die Berechtigungen an den Topics/Queues den Benutzern zugewiesen werden. Das Topi
+Über das authorizationPlugin können dann die Berechtigungen an den Topics/Queues den Benutzern zugewiesen werden. Read- bzw. Write-Permissions dürften selberklärend sein. Die "admin"-Rolle beschreibt in dem Zusammenhang die Rechte ein Topic zu erstellen.
+
+>Wichtig: Um auf ein beliebiges Topic lesend bwz. schreibend zugreifen zu können benötigt der Benutzer "admin"-Berechtigungen am "ActiveMQ.Advisory.>"-Zweig, da dort Informationen wie bspw. bestehende Verbindungen u.ä. gespeichert werden.
+>
+
 ```xml
 <plugins>
                 <simpleAuthenticationPlugin anonymousAccessAllowed="false">
@@ -118,3 +122,7 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
                 </authorizationPlugin>
         </plugins>
 ```
+
+Weitere Info unter:
+http://activemq.apache.org/security.html
+http://activemq.apache.org/wildcards.html
