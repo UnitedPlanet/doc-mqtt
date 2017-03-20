@@ -1,11 +1,11 @@
 # doc-mqtt
 Documentationsprojekt für MQTT-Server-VM, ActiveMQ etc.
 
-# 1) SSL-Verschlüsselung
+## 1) SSL-Verschlüsselung
 
 Einfache Möglichkeit mittels einem selbsterstellten und selbstsignierten Zertifikat:
 
-## a) Einen Keystore mit einem selbstsignierten Private-Key erstellen:
+### a) Einen Keystore mit einem selbstsignierten Private-Key erstellen:
 
 ```sh
 keytool -genkey -alias amq_server -keyalg RSA -keystore amq_server.ks
@@ -15,15 +15,15 @@ keytool -genkey -alias amq_server -keyalg RSA -keystore amq_server.ks
 Anfangs muss ausserdem ein Passwort für den Zugriff auf den Keystore eingegeben werden. Das später anzugebende Passwort für den Alias muss einfach mit ENTER quittiert werden, und ist somit identisch mit dem Keystore-Passwort.
 >
 
-## b) Das Zertifikat für die Clients exportieren
+### b) Das Zertifikat für die Clients exportieren
 ```sh
 keytool -export -alias amq_server -keystore amq_server.ks -file amq_server.cert
 ```
 
-## c) Das Zertifikat in Intrexx importieren
+### c) Das Zertifikat in Intrexx importieren
 Auf Intrexx-Seite muss nun das Zertifikat amq_server.cert in den Portal-Eigenschaften unter "Zertifikate" den Zertifikatsspeicher öffnen, und dort diese mittels "Import der Datei" hinzufügen. Danach muss der Portal-Dienst neu gestartet werden.
 
-## d) SSL in ActiveMQ aktivieren und Keystore einbinden
+### d) SSL in ActiveMQ aktivieren und Keystore einbinden
 Hierzu in der <ACTIVEMQ_INST>/conf/activemq.xml im "core"-Namespace der Pfad zu dem erstellten Keystore sowie dessen Passwort übergeben werden. Da da Passwort im Klartext vorliegt, sollte die activemq.xml entsprechend vor unberechtigtem Zugriff geschützt sein.
 
 Auszug aus der activemq.xml:
@@ -54,7 +54,7 @@ Auszug aus der activemq.xml:
 ```
 siehe http://activemq.apache.org/how-do-i-use-ssl.html
 
-## e) Den Keystore in Jetty einbinden
+### e) Den Keystore in Jetty einbinden
 ActiveMQ verwendet für seine Webadmin-Oberfläche Apache Jetty. Damit diese über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
 Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - aber noch auskommentierte - Einträge, zuvor in der activemq.xml muss Pfad und Passwort des Keystores hinterlegt werden:
 
@@ -80,12 +80,12 @@ Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumen
 
 https://wiki.eclipse.org/Jetty/Howto/Configure_SSL
 
-# 2) Einrichtung der Benutzer
+## 2) Einrichtung der Benutzer
 
-## a) Benutzer der Jetty-Webmin
+### a) Benutzer der Jetty-Webmin
 Die Benutzer, die sich an der Webmin-Oberfläche anmelden dürfen, werden in der  <ACTIVEMQ_INST>/conf/jetty-realm.properties definiert.
 
-## b) Benutzerberechtigungen der Konnektoren
+### b) Benutzerberechtigungen der Konnektoren
 Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der activemq.xml mittels des SimpleAuthenticationPlugin:
 Über einen entsprechenden authentication-Eintrag fügt man einen neuen Benutzer, sowie Passwort und die Gruppenzugehörigkeit hinzu.
 
