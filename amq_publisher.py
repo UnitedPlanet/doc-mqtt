@@ -13,7 +13,7 @@ client.on_connect = on_connect
 # last will
 client.will_set(last_will_queue, "ALARM", 0, False)
 
-# authentication asdf
+# authentication
 client.username_pw_set(publ_username, publ_password)
 
 # TLS set path to broker certificate
