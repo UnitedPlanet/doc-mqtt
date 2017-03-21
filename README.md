@@ -1,9 +1,14 @@
 # doc-mqtt
 Documentationsprojekt für MQTT-Server-VM, ActiveMQ etc.
 
+Hinweise zur Doku:
+* der PATH-Environment muss gesetzt sein, siehe
+https://www.java.com/de/download/help/path.xml
+* der Installationspfad <ACTIVE_MQ_INST> liegt in der TestVM unter /opt/activemq
+
 ## 1) SSL-Verschlüsselung
 
-Einfache Möglichkeit mittels einem selbsterstellten und selbstsignierten Zertifikat:
+Im Folgenden wird eine einfache Möglichkeit beschrieben, wie mit dem Java-Keytool ein selbstsigniertes Zertifikat erstellt, und dieses dann in ActiveMQ eingebunden werden kann.
 
 ### a) Einen Keystore mit einem selbstsignierten Private-Key erstellen:
 
