@@ -150,7 +150,7 @@ Korrigieren ließe sich das über den folgenden Befehl:
 chown activemq.activemq <DATEINAME>
 ```
 
-Danach muss über der ActiveMQ-Dienst neu gestartet werden:
+Danach muss der ActiveMQ-Dienst neu gestartet werden:
 ```sh
 service activemq restart
 ```
