@@ -1,10 +1,8 @@
 # doc-mqtt
 Documentationsprojekt für MQTT-Server-VM, ActiveMQ etc.
 
-Hinweise zur Doku:
-* der PATH-Environment muss gesetzt sein, siehe
-https://www.java.com/de/download/help/path.xml
-* der Installationspfad <ACTIVE_MQ_INST> liegt in der TestVM unter /opt/activemq
+Hinweise zur Dokumentation:
+* der ActiveMQ-Installationspfad <ACTIVE_MQ_INST> liegt in der TestVM unter /opt/activemq
 
 ## 1) SSL-Verschlüsselung
 
@@ -39,10 +37,10 @@ Auszug aus der activemq.xml:
 ..
 .
 <!-- Hier der Pfad und Passwort des Keystore-Files -->
-            <sslContext>
-              <sslContext
-                    keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" />
-            </sslContext>
+        <sslContext>
+            <sslContext
+                keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" />
+        </sslContext>
 
 <!-- in den entsprechenden Konnektoren SSL aktivieren, unbenötigte Konnektoren deaktivieren -->
 
@@ -64,20 +62,20 @@ ActiveMQ verwendet für seine Webadmin-Oberfläche Apache Jetty. Damit diese üb
 Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - aber noch auskommentierte - Einträge, zuvor in der activemq.xml muss Pfad und Passwort des Keystores hinterlegt werden:
 
 ```xml
-                <!--
-                    Enable this connector if you wish to use https with web console
-                -->
-                <bean id="SecureConnector" class="org.eclipse.jetty.server.ServerConnector">
-                                        <constructor-arg ref="Server" />
-                                        <constructor-arg>
-                                                <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
+        <!--
+            Enable this connector if you wish to use https with web console
+        -->
+        <bean id="SecureConnector" class="org.eclipse.jetty.server.ServerConnector">
+                                <constructor-arg ref="Server" />
+                                <constructor-arg>
+                                        <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
 
-                                                        <property name="keyStorePath" value="/PATH/TO/broker.p12" />
-                                                        <property name="keyStorePassword" value="GEHEIM" />
-                                                </bean>
-                                        </constructor-arg>
-                                        <property name="port" value="8162" />
-                                </bean>
+                                                <property name="keyStorePath" value="/PATH/TO/broker.p12" />
+                                                <property name="keyStorePassword" value="GEHEIM" />
+                                        </bean>
+                                </constructor-arg>
+                                <property name="port" value="8162" />
+                        </bean>
 ```
 
 Damit die Umleitung von HTTP auf HTTPS funktioniert, muss dann noch ein entsprechender Eintrag in der web.xml vorgenommen werden.
@@ -100,34 +98,34 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
 >
 
 ```xml
-<plugins>
-                <simpleAuthenticationPlugin anonymousAccessAllowed="false">
-                    <users>
-                        <authenticationUser username="admin" password="admin"
-                        groups="admins,publishers,consumers"/>
-                        <authenticationUser username="user_publ" password="admin"
-                        groups="publishers"/>
-                        <authenticationUser username="user_cons" password="admin"
-                        groups="consumers"/>
-                    </users>
-                </simpleAuthenticationPlugin>
+    <plugins>
+        <simpleAuthenticationPlugin anonymousAccessAllowed="false">
+            <users>
+                <authenticationUser username="admin" password="admin"
+                groups="admins,publishers,consumers"/>
+                <authenticationUser username="user_publ" password="admin"
+                groups="publishers"/>
+                <authenticationUser username="user_cons" password="admin"
+                groups="consumers"/>
+            </users>
+        </simpleAuthenticationPlugin>
 
-                <authorizationPlugin>
-                    <map>
-                        <authorizationMap>
-                            <authorizationEntries>
-                                <authorizationEntry topic=">"
-                                    read="admins" write="admins" admin="admins" />
-                                <authorizationEntry topic="ActiveMQ.Advisory.>"
-                                    read="publishers,consumers" write="publishers,consumers" admin="admins,consumers,publishers" />
-                                <authorizationEntry topic="test-mqtt.>"
-                                    read="consumers" write="publishers"
-                                    admin="admins" />
-                            </authorizationEntries>
-                        </authorizationMap>
-                    </map>
-                </authorizationPlugin>
-        </plugins>
+        <authorizationPlugin>
+            <map>
+                <authorizationMap>
+                    <authorizationEntries>
+                        <authorizationEntry topic=">"
+                            read="admins" write="admins" admin="admins" />
+                        <authorizationEntry topic="ActiveMQ.Advisory.>"
+                            read="publishers,consumers" write="publishers,consumers" admin="admins,consumers,publishers" />
+                        <authorizationEntry topic="test-mqtt.>"
+                            read="consumers" write="publishers"
+                            admin="admins" />
+                    </authorizationEntries>
+                </authorizationMap>
+            </map>
+        </authorizationPlugin>
+    </plugins>
 ```
 
 Weitere Info unter:
