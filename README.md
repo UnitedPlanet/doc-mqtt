@@ -66,16 +66,15 @@ Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - abe
             Enable this connector if you wish to use https with web console
         -->
         <bean id="SecureConnector" class="org.eclipse.jetty.server.ServerConnector">
-                                <constructor-arg ref="Server" />
-                                <constructor-arg>
-                                        <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
-
-                                                <property name="keyStorePath" value="/PATH/TO/broker.p12" />
-                                                <property name="keyStorePassword" value="GEHEIM" />
-                                        </bean>
-                                </constructor-arg>
-                                <property name="port" value="8162" />
-                        </bean>
+            <constructor-arg ref="Server" />
+            <constructor-arg>
+                <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
+                    <property name="keyStorePath" value="/PATH/TO/broker.p12" />
+                    <property name="keyStorePassword" value="GEHEIM" />
+                </bean>
+            </constructor-arg>
+            <property name="port" value="8162" />
+        </bean>
 ```
 
 Damit die Umleitung von HTTP auf HTTPS funktioniert, muss dann noch ein entsprechender Eintrag in der web.xml vorgenommen werden.
@@ -131,3 +130,28 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
 Weitere Info unter:
 http://activemq.apache.org/security.html
 http://activemq.apache.org/wildcards.html
+
+## 3) Berechtigungen sicherstellen und Dienst neu starten
+
+Der ActiveMQ-Server läuft unter einem restrictiven Benutzer-Account "activemq", deshalb muss nach den in 1) und 2) vorgenommenen Änderungen sichergestellt werden, dass Besitzer und Gruppenzugehörigkeit der geänderten Dateien noch stimmen, d.h. Besitzer und Gruppenzugehörigkeit der Datei müssen beide "activemq" lauten.
+
+Über folgenden Befehl lässt sich das kontrollieren:
+```sh
+ls -la /opt/activemq/conf/activemq.xml /opt/activemq/conf/jetty.xml
+
+-rw-r--r-- 1 activemq activemq 7785 2017-03-20 08:14 /opt/activemq/conf/activemq.xml
+-rw-r--r-- 1 activemq activemq 7841 2017-03-15 16:04 /opt/activemq/conf/jetty.xml
+```
+
+Dasselbe gilt für die in Punkt 1) erstellte Keystore-Datei. Der Speicherpfad der Datei und Benutzer/Gruppe müssen entsprechend vom activemq-Benutzer gelesen werden können.
+
+Korrigieren ließe sich das über den folgenden Befehl:
+```sh
+chown activemq.activemq <DATEINAME>
+```
+
+Danach muss über der ActiveMQ-Dienst neu gestartet werden:
+```sh
+service activemq restart
+```
+
