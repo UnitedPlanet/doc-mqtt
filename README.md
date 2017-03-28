@@ -90,15 +90,41 @@ Falls man den offiziellen Weg geht - also einen Private Key erstellen, daraus ei
 a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
 
 Der private Schlüssel (bspw. *.key):
+```sh
 -----BEGIN RSA PRIVATE KEY-----
+...
+```
+
 Das Zertifikat (bspw. *.crt):
+```sh
 -----BEGIN CERTIFICATE-----
+...
+```
 Und das CA-Zwischenzertifikat (also bspw. *.ca):
+```sh
 -----BEGIN CERTIFICATE-----
+...
+```
 
-b) 2) Danach wird diese pem-Datei über den folgenden Befehl nach pkcs12 konvertiert (OpenSSL muss installiert sein):
+b) Danach wird diese pem-Datei über den folgenden Befehl nach pkcs12 konvertiert (OpenSSL muss installiert sein):
+```sh
 openssl pkcs12 -export -name MY_ALIAS -in zertifikatskette.pem -out zertifikats_keystore.p12
+```
 
+c) Die Einbindung in ActiveMQ bzw. Jetty funktioniert wie in Punkt d) bzw. e) beschrieben, da der gerade erzeugte Keystore vom Typ PKCS12 ist, muss dies in der Einbindung explizit mitangegeben werden:
+
+In der jetty:
+```xml                                                     <property name="keyStorePath" value="/PATH/TO/broker.p12" />
+                                                        <property name="keyStorePassword" value="GEHEIM" />
+                                                        <property name="keyStoreType" value="pkcs12" />
+```
+In der activemq.xml im sslContext:
+```xml
+            <sslContext>
+              <sslContext
+                    keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" keyStoreType="pkcs12" />
+            </sslContext>
+```
 
 ## 2) Einrichtung der Benutzer
 
