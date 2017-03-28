@@ -113,17 +113,18 @@ openssl pkcs12 -export -name MY_ALIAS -in zertifikatskette.pem -out zertifikats_
 
 c) Die Einbindung in ActiveMQ bzw. Jetty funktioniert wie in Punkt d) bzw. e) beschrieben, da der gerade erzeugte Keystore vom Typ PKCS12 ist, muss dies in der Einbindung explizit mitangegeben werden:
 
-In der jetty:
-```xml                                                     <property name="keyStorePath" value="/PATH/TO/broker.p12" />
-                                                        <property name="keyStorePassword" value="GEHEIM" />
-                                                        <property name="keyStoreType" value="pkcs12" />
+In der jetty.xml:
+```xml                                                     
+        <property name="keyStorePath" value="/PATH/TO/broker.p12" />
+        <property name="keyStorePassword" value="GEHEIM" />
+        <property name="keyStoreType" value="pkcs12" />
 ```
 In der activemq.xml im sslContext:
 ```xml
-            <sslContext>
-              <sslContext
-                    keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" keyStoreType="pkcs12" />
-            </sslContext>
+        <sslContext>
+            <sslContext
+                keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" keyStoreType="pkcs12" />
+        </sslContext>
 ```
 
 ## 2) Einrichtung der Benutzer
