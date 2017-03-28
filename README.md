@@ -82,6 +82,24 @@ Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumen
 
 https://wiki.eclipse.org/Jetty/Howto/Configure_SSL
 
+### Hinweis zur Verwendung eines offiziell signierten Zertifikates
+Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispiesweise dazu, dass im Webbrowers beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
+
+Falls man den offiziellen Weg geht - also einen Private Key erstellen, daraus eine Zertifikatsanforderung generieren, diesen von einer offiziellen Zertifizierungsstelle signieren lassen und das dann erhaltene Zertifikat dann einzubinden - kann man dies folgendermaßen tun:
+
+a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
+
+Der private Schlüssel (bspw. *.key):
+-----BEGIN RSA PRIVATE KEY-----
+Das Zertifikat (bspw. *.crt):
+-----BEGIN CERTIFICATE-----
+Und das CA-Zwischenzertifikat (also bspw. *.ca):
+-----BEGIN CERTIFICATE-----
+
+b) 2) Danach wird diese pem-Datei über den folgenden Befehl nach pkcs12 konvertiert (OpenSSL muss installiert sein):
+openssl pkcs12 -export -name MY_ALIAS -in zertifikatskette.pem -out zertifikats_keystore.p12
+
+
 ## 2) Einrichtung der Benutzer
 
 ### a) Benutzer der Jetty-Webmin
