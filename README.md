@@ -87,7 +87,7 @@ Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein se
 
 Falls man den offiziellen Weg geht - also einen Private Key erstellen, daraus eine Zertifikatsanforderung generieren, diesen von einer offiziellen Zertifizierungsstelle signieren lassen und das dann erhaltene Zertifikat dann einzubinden - kann man dies folgendermaßen tun:
 
-a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
+a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste der private Schlüssel, sowie sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
 
 Der private Schlüssel (bspw. *.key):
 ```sh
@@ -171,7 +171,7 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
     </plugins>
 ```
 
-Weitere Info unter:
+Weitere Informationen hierzu unter:
 http://activemq.apache.org/security.html
 http://activemq.apache.org/wildcards.html
 
