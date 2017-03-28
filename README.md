@@ -100,7 +100,7 @@ Das Zertifikat (bspw. *.crt):
 -----BEGIN CERTIFICATE-----
 ...
 ```
-Und das CA-Zwischenzertifikat (also bspw. *.ca):
+Und eventuelle CA-Zwischenzertifikate (bspw. *.ca):
 ```sh
 -----BEGIN CERTIFICATE-----
 ...
