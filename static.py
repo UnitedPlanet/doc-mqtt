@@ -7,7 +7,7 @@ subs_password = "admin"
 subs_topic = "test-mqtt"
 subs_clientid = "TomSubsClient"
 
-publ_username = "user_cons"
+publ_username = "user_publ"
 publ_password = "admin"
 publ_topic = "test-mqtt"
 publ_clientid = "TomPubllient"
