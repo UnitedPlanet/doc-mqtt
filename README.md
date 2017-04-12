@@ -138,9 +138,6 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
 
 Über das authorizationPlugin können dann die Berechtigungen an den Topics/Queues den Benutzern zugewiesen werden. Read- bzw. Write-Permissions dürften selberklärend sein. Die "admin"-Rolle beschreibt in dem Zusammenhang die Rechte ein Topic zu erstellen.
 
->Wichtig: Um auf ein beliebiges Topic lesend bwz. schreibend zugreifen zu können benötigt der Benutzer "admin"-Berechtigungen am "ActiveMQ.Advisory.>"-Zweig, da dort Informationen wie bspw. bestehende Verbindungen u.ä. gespeichert werden.
->
-
 ```xml
     <plugins>
         <simpleAuthenticationPlugin anonymousAccessAllowed="false">
@@ -175,6 +172,16 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
 Weitere Informationen hierzu unter:
 http://activemq.apache.org/security.html
 http://activemq.apache.org/wildcards.html
+
+>Hinweis: ActiveMQ bietet die Möglichkeit, Informationen über die Topics über den ActiveMQ.Advisory-Zweig zur Verfügung zu stellen, bspw. wird beim Verbindungsaufbau eines Clients im ActiveMQ.Advisory.Connection-Zweig eine Message generiert. Falls man die dort bereitsgestellten Informationen benötigt, benötigt der Client auch dort die notwendigen Lese-/Schreibberechtigungen. Falls die entsprechenden Zweige nicht vorhanden sind benötigt der Client dann auch Admin-Berechtigungen um die Topics generieren zu können.
+>
+>Über den folgenden Eintrag im Broker-Namespace der activemq.xml lassen sich die Advisory Messages aber auch deaktivieren:
+```xml
+<broker advisorySupport="false">
+```
+siehe auch:
+http://activemq.apache.org/advisory-message.html#AdvisoryMessage-Disablingadvisorymessages
+
 
 ## 3) Berechtigungen sicherstellen und Dienst neu starten
 
