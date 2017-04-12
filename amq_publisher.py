@@ -4,6 +4,10 @@ import time
 import paho.mqtt.client as mqtt
 from static import *
 
+def get_fanspeed():
+    with open('/sys/devices/platform/it87.656/fan1_input',"r", encoding="utf-8") as f:
+        return f.readline().strip('\n')
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
 
@@ -22,12 +26,9 @@ client.tls_set(cert_path)
 client.connect(server_host, server_port, 60)
 client.loop_start()
 
-count = 0
-
 while True:
-    time.sleep(2)
-    count += 1
-    my_message = "Tom's message no. " + str(count)
-    #client.publish("tom/topics/mytopic1", my_message, qos=2, retain=True)
+    my_message = str(get_fanspeed())
+    # qos=2, retain=True
     client.publish(subs_topic, my_message, qos=1)
-    print(my_message + " sent...")
+    print("Sent: \"%s\"" % (my_message))
+    time.sleep(2)
