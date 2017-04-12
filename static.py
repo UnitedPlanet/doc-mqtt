@@ -10,7 +10,7 @@ subs_clientid = "TomSubsClient"
 publ_username = "user_publ"
 publ_password = "admin"
 publ_topic = subs_topic
-publ_clientid = "TomPubllient"
+publ_clientid = "TomPublClient"
 publ_qos = 1
 
 last_will_queue = "tom/alarm"
