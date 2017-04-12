@@ -29,6 +29,6 @@ client.loop_start()
 while True:
     my_message = str(get_fanspeed())
     # qos=2, retain=True
-    client.publish(subs_topic, my_message, qos=1)
+    client.publish(subs_topic, my_message, publ_qos)
     print("Sent: \"%s\"" % (my_message))
     time.sleep(2)
