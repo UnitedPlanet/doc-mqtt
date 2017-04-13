@@ -173,9 +173,10 @@ Weitere Informationen hierzu unter:
 <http://activemq.apache.org/security.html>
 <http://activemq.apache.org/wildcards.html>
 
->Hinweis: ActiveMQ bietet die Möglichkeit, Informationen über die Topics über den ActiveMQ.Advisory-Zweig zur Verfügung zu stellen, bspw. wird beim Verbindungsaufbau eines Clients im ActiveMQ.Advisory.Connection-Zweig eine Message generiert. Falls man die dort bereitsgestellten Informationen benötigt, benötigt der Client auch dort die notwendigen Lese-/Schreibberechtigungen. Falls die entsprechenden Zweige nicht vorhanden sind, benötigt der Client dann auch Admin-Berechtigungen um die Topics generieren zu können bzw. muss zuvor sichergestellt werden, dass die benötigen Advisory topics vorhanden sind.
->
->Über den folgenden Eintrag im Broker-Namespace der activemq.xml lassen sich die Advisory Messages aber auch deaktivieren:
+#### Hinweis
+ActiveMQ bietet die Möglichkeit, Informationen über die Topics über den ActiveMQ.Advisory-Zweig zur Verfügung zu stellen, bspw. wird beim Verbindungsaufbau eines Clients im ActiveMQ.Advisory.Connection-Zweig eine Message generiert. Falls man die dort bereitsgestellten Informationen benötigt, benötigt der Client auch dort die notwendigen Lese-/Schreibberechtigungen. Falls die entsprechenden Zweige nicht vorhanden sind, benötigt der Client dann auch Admin-Berechtigungen um die Topics generieren zu können bzw. muss zuvor sichergestellt werden, dass die benötigen Advisory topics vorhanden sind.
+
+Über den folgenden Eintrag im Broker-Namespace der activemq.xml lassen sich die Advisory Messages aber auch deaktivieren:
 ```xml
 <broker advisorySupport="false">
 ```
