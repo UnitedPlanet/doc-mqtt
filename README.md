@@ -55,7 +55,7 @@ Auszug aus der activemq.xml:
             <transportConnector name="ws" uri="ws://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/ -->
         </transportConnectors>
 ```
-siehe http://activemq.apache.org/how-do-i-use-ssl.html
+siehe <http://activemq.apache.org/how-do-i-use-ssl.html>
 
 ### e) Den Keystore in Jetty einbinden
 ActiveMQ verwendet für seine Webadmin-Oberfläche Apache Jetty. Damit diese über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
@@ -80,7 +80,7 @@ Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - abe
 Damit die Umleitung von HTTP auf HTTPS funktioniert, muss dann noch ein entsprechender Eintrag in der web.xml vorgenommen werden.
 Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumentation beschrieben:
 
-https://wiki.eclipse.org/Jetty/Howto/Configure_SSL
+<https://wiki.eclipse.org/Jetty/Howto/Configure_SSL>
 
 ### Hinweis zur Verwendung eines offiziell signierten Zertifikates
 Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispiesweise dazu, dass im Webbrowers beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
@@ -170,17 +170,17 @@ Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der ac
 ```
 
 Weitere Informationen hierzu unter:
-http://activemq.apache.org/security.html
-http://activemq.apache.org/wildcards.html
+<http://activemq.apache.org/security.html>
+<http://activemq.apache.org/wildcards.html>
 
->Hinweis: ActiveMQ bietet die Möglichkeit, Informationen über die Topics über den ActiveMQ.Advisory-Zweig zur Verfügung zu stellen, bspw. wird beim Verbindungsaufbau eines Clients im ActiveMQ.Advisory.Connection-Zweig eine Message generiert. Falls man die dort bereitsgestellten Informationen benötigt, benötigt der Client auch dort die notwendigen Lese-/Schreibberechtigungen. Falls die entsprechenden Zweige nicht vorhanden sind benötigt der Client dann auch Admin-Berechtigungen um die Topics generieren zu können.
+>Hinweis: ActiveMQ bietet die Möglichkeit, Informationen über die Topics über den ActiveMQ.Advisory-Zweig zur Verfügung zu stellen, bspw. wird beim Verbindungsaufbau eines Clients im ActiveMQ.Advisory.Connection-Zweig eine Message generiert. Falls man die dort bereitsgestellten Informationen benötigt, benötigt der Client auch dort die notwendigen Lese-/Schreibberechtigungen. Falls die entsprechenden Zweige nicht vorhanden sind, benötigt der Client dann auch Admin-Berechtigungen um die Topics generieren zu können bzw. muss zuvor sichergestellt werden, dass die benötigen Advisory topics vorhanden sind.
 >
 >Über den folgenden Eintrag im Broker-Namespace der activemq.xml lassen sich die Advisory Messages aber auch deaktivieren:
 ```xml
 <broker advisorySupport="false">
 ```
 siehe auch:
-http://activemq.apache.org/advisory-message.html#AdvisoryMessage-Disablingadvisorymessages
+<http://activemq.apache.org/advisory-message.html#AdvisoryMessage-Disablingadvisorymessages>
 
 
 ## 3) Berechtigungen sicherstellen und Dienst neu starten
