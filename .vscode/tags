@@ -1,0 +1,28 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+amq_publisher.py	../amq_publisher.py	1;"	kind:file	line:1
+amq_subscriber.py	../amq_subscriber.py	1;"	kind:file	line:1
+cert_path	../static.py	/^cert_path = "broker.pem"$/;"	kind:variable	line:3
+client	../amq_publisher.py	/^client = mqtt.Client()$/;"	kind:variable	line:14
+client	../amq_subscriber.py	/^client = mqtt.Client(subs_clientid, clean_session=False)$/;"	kind:variable	line:14
+get_fanspeed	../amq_publisher.py	/^def get_fanspeed():$/;"	kind:function	line:7
+last_will_queue	../static.py	/^last_will_queue = "tom\/alarm"$/;"	kind:variable	line:16
+on_connect	../amq_publisher.py	/^def on_connect(client, userdata, flags, rc):$/;"	kind:function	line:11
+on_connect	../amq_subscriber.py	/^def on_connect(client, userdata, flags, rc):$/;"	kind:function	line:6
+on_message	../amq_subscriber.py	/^def on_message(client, userdata, msg):$/;"	kind:function	line:11
+publ_clientid	../static.py	/^publ_clientid = "TomPublClient"$/;"	kind:variable	line:13
+publ_password	../static.py	/^publ_password = "admin"$/;"	kind:variable	line:11
+publ_qos	../static.py	/^publ_qos = 1$/;"	kind:variable	line:14
+publ_topic	../static.py	/^publ_topic = subs_topic$/;"	kind:variable	line:12
+publ_username	../static.py	/^publ_username = "user_publ"$/;"	kind:variable	line:10
+server_host	../static.py	/^server_host = "avvmtemplate.dev.unitedplanet.de"$/;"	kind:variable	line:1
+server_port	../static.py	/^server_port = 8883$/;"	kind:variable	line:2
+static.py	../static.py	1;"	kind:file	line:1
+subs_clientid	../static.py	/^subs_clientid = "TomSubsClient"$/;"	kind:variable	line:8
+subs_password	../static.py	/^subs_password = "admin"$/;"	kind:variable	line:6
+subs_topic	../static.py	/^subs_topic = "test-mqtt\/fanspeed"$/;"	kind:variable	line:7
+subs_username	../static.py	/^subs_username = "user_cons"$/;"	kind:variable	line:5
