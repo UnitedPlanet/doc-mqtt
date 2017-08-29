@@ -15,7 +15,7 @@ Wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ
 
 
 Hinweise zur Dokumentation:
-* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers. In der von Unitplanet GmbH bereitgtestellten TestVM ist dies `/opt/activemq`
+* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers. In der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
 
 ## 1) SSL-Verschlüsselung
 
