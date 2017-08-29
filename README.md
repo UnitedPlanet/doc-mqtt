@@ -15,7 +15,7 @@ Wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ
 
 
 Hinweise zur Dokumentation:
-* der ActiveMQ-Installationspfad <ACTIVE_MQ_INST> liegt in der TestVM unter /opt/activemq
+* der ActiveMQ-Installationspfad `<ACTIVE_MQ_INST>` liegt in der TestVM unter `/opt/activemq`
 
 ## 1) SSL-Verschlüsselung
 
