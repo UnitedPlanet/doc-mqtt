@@ -2,27 +2,24 @@
 Documentationsprojekt für die MQTT-Server-VM, ActiveMQ etc.
 
 ## Was ist MQTT ?
-MQTT(Message Queue Telemetry Transport) ist ein Nachrichten-Protokoll basierend auf TCP. Es zeichnet sich durch einen geringen Overhead bei der Kommunikation aus, bietet aber dennoch ein stabile Nachrichtenzustellung. Damit eignet es sich in Bereichen in denen Geräte nur über eine geringe, beziehungsweise eingeschränkte oder kostenintensive Bandbreite angebunden sind, aber dennoch regelmäßig Rückmeldung geben müssen. Ein praktischer Anwendungsbereich, in denen MQTT bereits verbreitet eingesetzt wird, sind "Track&Trace"-Applikationen, die verschiedenste Messwerte erfassen wie Temperaturen, Drehzahlen, Wasserstände etc..
-
-Es existieren Anbindungen an alle gängigen Programmiersprachen, die Hardware, auf denen es betrieben wird, reicht vom Einplatinen-Computer(SoC) über Smartphones bis zu industriellen Fertigungsanlagen.
+MQTT(Message Queue Telemetry Transport) ist ein Nachrichten-Protokoll basierend auf TCP. Es zeichnet sich durch einen geringen Overhead bei der Kommunikation aus, bietet aber dennoch ein stabile Nachrichtenzustellung. Damit eignet es sich in Bereichen in denen Geräte nur über eine geringe, beziehungsweise eingeschränkte oder kostenintensive Bandbreite angebunden sind, aber dennoch regelmäßig Informationen bereitstellen bzw. beziehen sollen. Ein praktischer Anwendungsbereich, in denen MQTT bereits verbreitet eingesetzt wird, sind "Track&Trace"-Applikationen, die verschiedenste Messwerte erfassen wie Temperaturen, Drehzahlen, Wasserstände etc..
+Die Geräte können dabei vom Einplatinenrechner(SoC), also beispielsweise einem Raspberry Pi der mittels GPIO um entsprechende Sensoren erweitert wurde, über Smartphones, die die entsprechenden Werte dann mobil bereitstellen, bis hin zu industriellen Fertigungsanlangen, deren Produktions- bzw Hardwarestati überwacht werden sollen, reichen.
 
 ## Wie funktioniert MQTT ?
 Ein MQTT-Client kann entweder als "Listener", also als Teilnehmer der auf Nachrichten anderer MQTT-Clients hört, aber auch als "Publisher", also als Teilnehmer der Nachrichten versendet, fungieren. Die Zuordung der Nachrichten ist in Kanäle, sogenannten "topics", gegliedert, d.h. damit sich im einfachsten Falle zwei MQTT-Client "unterhalten" können, wird bei beiden dasselbe Thema ausgewählt.
 Das kann im einfachsten Szenario genügen, um beispielsweise per Smartphone regelmäßige Berichte der Pegelhöhe eines Wasserkraftwerkes zugestellt zu bekommen.
 Sobald aber mehrere Clients im Spiel sind und verschiedene Topic-Stränge existieren bzw. verwendet werden sollen, oder der Zugriff entsprechend gesichert werden soll, bietet es sich an, einen sogenannten "Broker", also einen MQTT-Server zu verwenden. Dieser bietet zudem die Möglichkeit weitere Protokolle, wie beispielsweise JMS(Java Messaging Service), einzubinden.
 
-Wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
-
-
 Hinweise zur Dokumentation:
-* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers. In der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
+* wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
+* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers, in der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
 
 ## 1) SSL-Verschlüsselung
 
-Im Folgenden wird eine einfache Möglichkeit beschrieben, wie mit dem Java-Keytool ein selbstsigniertes Zertifikat erstellt, und dieses dann in ActiveMQ eingebunden werden kann.
+Im Folgenden wird eine einfache Möglichkeit beschrieben, wie mit dem Java-Keytool ein selbstsigniertes Zertifikat erstellt, und dieses dann in ActiveMQ eingebunden werden kann. Hierzu muss auf dem System Java installiert und konfiguriert sein.
 
 ### a) Einen Keystore mit einem selbstsignierten Private-Key erstellen:
-
+Zuallerst erstellen wir einen Schlüsselbund(Keystore), der den privaten Schlüssel enthält:
 ```sh
 keytool -genkey -alias amq_server -keyalg RSA -keystore amq_server.ks
 ```
@@ -32,6 +29,7 @@ Anfangs muss ausserdem ein Passwort für den Zugriff auf den Keystore eingegeben
 >
 
 ### b) Das Zertifikat für die Clients exportieren
+Aus der zuvor erstellten Keystore-Datei wird nun der öffentliche Schlüssel sowie das Zertifikat generiert:
 ```sh
 keytool -export -alias amq_server -keystore amq_server.ks -file amq_server.cert
 ```
@@ -71,7 +69,7 @@ Auszug aus der activemq.xml:
 siehe <http://activemq.apache.org/how-do-i-use-ssl.html>
 
 ### e) Den Keystore in Jetty einbinden
-ActiveMQ stellt eine Weboberfläche bereit, mittels derer man sich einen Überblick über den derzeitigen Status, wie beispielsweise die gerade aktiven Topics, oder auch die gerade angemeldeten Publishern/Subscriber, verschaffen kann. ActiveMQ liefert hierfür den Webserver Jetty von Apache mit aus.
+ActiveMQ stellt eine Weboberfläche bereit, mittels derer man sich einen Überblick über bestimmte Statusinformationen, wie beispielsweise die gerade aktiven Topics, oder auch die gerade angemeldeten Publishern/Subscriber, verschaffen kann. ActiveMQ liefert hierfür den Webserver Jetty von Apache mit aus.
 
 
 ActiveMQ verwendet für seine Webadmin-Oberfläche Apache Jetty. Damit diese über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
@@ -149,7 +147,7 @@ In der activemq.xml im sslContext:
 Die Benutzer, die sich an der Webmin-Oberfläche anmelden dürfen, werden in der  <ACTIVEMQ_INST>/conf/jetty-realm.properties definiert.
 
 ### b) Benutzerberechtigungen der Konnektoren
-Die einfachste Möglichkeit ist das direkte Setzten der Berechtigungen in der activemq.xml mittels des SimpleAuthenticationPlugin:
+Die einfachste Möglichkeit ist das direkte Setzen der Berechtigungen in der activemq.xml mittels des SimpleAuthenticationPlugin:
 Über einen entsprechenden authentication-Eintrag fügt man einen neuen Benutzer, sowie Passwort und die Gruppenzugehörigkeit hinzu.
 
 Über das authorizationPlugin können dann die Berechtigungen an den Topics/Queues den Benutzern zugewiesen werden. Read- bzw. Write-Permissions dürften selberklärend sein. Die "admin"-Rolle beschreibt in dem Zusammenhang die Rechte ein Topic zu erstellen.
