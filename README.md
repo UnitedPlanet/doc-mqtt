@@ -9,7 +9,7 @@ Es existieren Anbindungen an alle gängigen Programmiersprachen, die Hardware, a
 ## Wie funktioniert MQTT ?
 Ein MQTT-Client kann entweder als "Listener", also als Teilnehmer der auf Nachrichten anderer MQTT-Clients hört, aber auch als "Publisher", also als Teilnehmer der Nachrichten versendet, fungieren. Die Zuordung der Nachrichten ist in Kanäle, sogenannten "topics", gegliedert, d.h. damit sich im einfachsten Falle zwei MQTT-Client "unterhalten" können, wird bei beiden dasselbe Thema ausgewählt.
 Das kann im einfachsten Szenario genügen, um beispielsweise per Smartphone regelmäßige Berichte der Pegelhöhe eines Wasserkraftwerkes zugestellt zu bekommen.
-Sobald aber mehrere Clients im Spiel sind und verschiedene Topic-Stränge existieren bzw. verwendet werden sollen, oder der Zugriff entsprechend gesichert werden soll, bietet es sich an, einen sogenannten "Broker", also einen MQTT-Server zu verwenden. Dieser bietet zudem die Möglichkeit weitere Protokolle, wie beispielsweise JMS(Java Messaging Service), einzubinden.
+Sobald aber mehrere Clients im Spiel sind und verschiedene Topic-Stränge existieren bzw. verwendet werden sollen, oder der Zugriff entsprechend gesichert werden soll, bietet es sich an, einen sogenannten "Broker", also einen MQTT-Server zu verwenden. Dieser bietet zudem die Möglichkeit weitere Protokolle, wie beispielsweise JMS(Java Messaging Service), einzubinden..
 
 Wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
 
