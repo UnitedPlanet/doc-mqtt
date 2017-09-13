@@ -72,6 +72,9 @@ Auszug aus der activemq.xml:
 ```
 siehe <http://activemq.apache.org/how-do-i-use-ssl.html>
 
+> Hinweis: bei den Parametern ist die Groß-/Kleinschreibung entscheidend, also keystore != keyStore
+>
+
 ### e) Den Keystore in Jetty einbinden
 ActiveMQ stellt eine Weboberfläche bereit, mittels derer man sich einen Überblick über bestimmte Statusinformationen, wie beispielsweise die gerade aktiven Topics, oder auch die gerade angemeldeten Publisher/Subscriber, verschaffen kann. ActiveMQ liefert hierfür den Webserver Jetty von Apache mit aus.
 
@@ -108,7 +111,7 @@ Falls offiziell signierte Zertifikate erstellen möchte, wäre die Vorgehensweis
 * lässt diese dann von einer offiziellen Zertifizierungsstelle signieren
 
 Die dann von der Zertifizierungsstelle zurückerhaltenen, signierten Zertifikate liegen meist in unterschiedlichen Formaten vor.
-Am Einfachsten lassen sich die Zertifikate im PEM-Format (im Klartext) einbinden, indem man die entsprechenden Dateien mit einem Texteditor öffnet, den privaten Schlüssel, Zertifikate sowie Zwischenzertifikate kopiert und daraus eine neue Datei, welche die komplette Kette enthält, generiert, also:
+Am Einfachsten lassen sich die Zertifikate im PEM-Format (im Klartext) einbinden, indem man die entsprechenden Dateien mit einem Texteditor öffnet, den privaten Schlüssel, Zertifikate sowie Zwischenzertifikate kopiert, und daraus eine neue Datei, welche die komplette Kette enthält, generiert, also:
 
 a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste der private Schlüssel, sowie sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
 
@@ -134,7 +137,7 @@ b) Danach wird diese pem-Datei über den folgenden Befehl nach pkcs12 konvertier
 openssl pkcs12 -export -name MY_ALIAS -in zertifikatskette.pem -out zertifikats_keystore.p12
 ```
 
-c) Die Einbindung in ActiveMQ bzw. Jetty funktioniert wie in Punkt d) bzw. e) beschrieben, da der gerade erzeugte Keystore vom Typ PKCS12 ist, muss dies in der Einbindung explizit mitangegeben werden:
+c) Die Einbindung in ActiveMQ bzw. Jetty funktioniert wie in Punkt d) bzw. e) beschrieben, da der gerade erzeugte Keystore vom Typ PKCS12 ist, muss lediglich noch ein weiterer Parameter, der den Typ des Keystores beschreibt, mitangegeben werden:
 
 In der jetty.xml:
 ```xml                                                     
