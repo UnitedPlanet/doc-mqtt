@@ -10,35 +10,39 @@ Ein MQTT-Client kann entweder als "Listener", also als Teilnehmer der auf Nachri
 Das kann im einfachsten Szenario genügen, um beispielsweise per Smartphone regelmäßige Berichte der Pegelhöhe eines Wasserkraftwerkes zugestellt zu bekommen.
 Sobald aber mehrere Clients im Spiel sind und verschiedene Topic-Stränge existieren bzw. verwendet werden sollen, oder der Zugriff entsprechend gesichert werden soll, bietet es sich an, einen sogenannten "Broker", also einen MQTT-Server zu verwenden. Dieser bietet zudem die Möglichkeit weitere Protokolle, wie beispielsweise JMS(Java Messaging Service), einzubinden.
 
-Hinweise zur Dokumentation:
+>Hinweise zur Dokumentation:
 * wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
 * das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers, in der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
+>
 
 ## 1) SSL-Verschlüsselung
 
 Im Folgenden wird eine einfache Möglichkeit beschrieben, wie mit dem Java-Keytool ein selbstsigniertes Zertifikat erstellt, und dieses dann in ActiveMQ eingebunden werden kann. Hierzu muss auf dem System Java installiert und konfiguriert sein.
 
 ### a) Einen Keystore mit einem selbstsignierten Private-Key erstellen:
-Zuallerst erstellen wir einen Schlüsselbund(Keystore), der den privaten Schlüssel enthält:
+Zuerst erstellen wir einen Schlüsselbund(Keystore), der den privaten Schlüssel enthält:
 ```sh
 keytool -genkey -alias amq_server -keyalg RSA -keystore amq_server.ks
 ```
 
 >WICHTIG: als CN (im Dialog: "Vor- und Nachname" bzw. "First and last name") muss der FQHN der ActiveMQ-Servers übergeben werden. Es muss dann später sichergestellt werden, dass der ActiveMQ über diesen Namen erreichbar ist, damit das SSL-Handshake funktioniert.
 Anfangs muss ausserdem ein Passwort für den Zugriff auf den Keystore eingegeben werden. Das später anzugebende Passwort für den Alias muss einfach mit ENTER quittiert werden, und ist somit identisch mit dem Keystore-Passwort.
+Ausserdem sollte die Datei, da Sie den privaten Schlüssel des ActiveMQ enthält, entsprechend vor Zugriff geschützt werden.
 >
 
 ### b) Das Zertifikat für die Clients exportieren
 Aus der zuvor erstellten Keystore-Datei wird nun der öffentliche Schlüssel sowie das Zertifikat generiert:
 ```sh
-keytool -export -alias amq_server -keystore amq_server.ks -file amq_server.cert
+keytool -exportcert -alias amq_server -keystore amq_server.ks -file amq_server.cert
 ```
 
 ### c) Das Zertifikat in Intrexx importieren
-Auf Intrexx-Seite muss nun das Zertifikat amq_server.cert in den Portal-Eigenschaften unter "Zertifikate" den Zertifikatsspeicher öffnen, und dort diese mittels "Import der Datei" hinzufügen. Danach muss der Portal-Dienst neu gestartet werden.
+Damit Intrexx dann später eine verschlüsselte TLS-Verbindung zum ActiveMQ-Server herstellen kann, muss die gerade erstellte amq_server.cert nun in Intrexx eingebunden werden.
+Hierzu muss man im Portal manager im entsprechenden Portal unter "Eigenschaften" ->  "Zertifikate" den Zertifikatsspeicher öffnen, und dort die amq_server.cert über "Import der Datei" zu den Zertifikaten hinzufügen. 
+Damit die Änderung greift, muss der Portal-Dienst neu gestartet werden.
 
-### d) SSL in ActiveMQ aktivieren und Keystore einbinden
-Hierzu in der <ACTIVEMQ_INST>/conf/activemq.xml im "core"-Namespace der Pfad zu dem erstellten Keystore sowie dessen Passwort übergeben werden. Da da Passwort im Klartext vorliegt, sollte die activemq.xml entsprechend vor unberechtigtem Zugriff geschützt sein.
+### d) SSL in ActiveMQ aktivieren und Keystore mit dem privaten Schlüssel einbinden
+Hierzu muss in der <ACTIVEMQ_INST>/conf/activemq.xml im "core"-Namespace der Pfad zu dem erstellten Keystore, sowie dessen Passwort übergeben werden. Da da Passwort im Klartext vorliegt, sollte die activemq.xml entsprechend vor unberechtigtem Zugriff geschützt sein.
 
 Auszug aus der activemq.xml:
 
@@ -50,7 +54,7 @@ Auszug aus der activemq.xml:
 <!-- Hier der Pfad und Passwort des Keystore-Files -->
         <sslContext>
             <sslContext
-                keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" />
+                keyStore="/PATH/TO/amq_server.ks" keyStorePassword="GEHEIM" />
         </sslContext>
 
 <!-- in den entsprechenden Konnektoren SSL aktivieren, unbenötigte Konnektoren deaktivieren -->
@@ -71,9 +75,8 @@ siehe <http://activemq.apache.org/how-do-i-use-ssl.html>
 ### e) Den Keystore in Jetty einbinden
 ActiveMQ stellt eine Weboberfläche bereit, mittels derer man sich einen Überblick über bestimmte Statusinformationen, wie beispielsweise die gerade aktiven Topics, oder auch die gerade angemeldeten Publishern/Subscriber, verschaffen kann. ActiveMQ liefert hierfür den Webserver Jetty von Apache mit aus.
 
-
-ActiveMQ verwendet für seine Webadmin-Oberfläche Apache Jetty. Damit diese über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
-Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - aber noch auskommentierte - Einträge, zuvor in der activemq.xml muss Pfad und Passwort des Keystores hinterlegt werden:
+Damit dieser über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
+Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende, aber noch auskommentierte Einträge, welche, wie zuvor bereits im ActiveMQ entsprechend, um Pfad und Passwort des Keystores erweitert werden müssen:
 
 ```xml
         <!--
@@ -83,7 +86,7 @@ Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende - abe
             <constructor-arg ref="Server" />
             <constructor-arg>
                 <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
-                    <property name="keyStorePath" value="/PATH/TO/broker.p12" />
+                    <property name="keyStorePath" value="/PATH/TO/amq_server.ks" />
                     <property name="keyStorePassword" value="GEHEIM" />
                 </bean>
             </constructor-arg>
@@ -97,9 +100,9 @@ Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumen
 <https://wiki.eclipse.org/Jetty/Howto/Configure_SSL>
 
 ### Hinweis zur Verwendung eines offiziell signierten Zertifikates
-Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispiesweise dazu, dass im Webbrowers beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
+Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispiesweise dazu, dass im Webbrower beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
 
-Falls man den offiziellen Weg geht - also einen Private Key erstellen, daraus eine Zertifikatsanforderung generieren, diesen von einer offiziellen Zertifizierungsstelle signieren lassen und das dann erhaltene Zertifikat dann einzubinden - kann man dies folgendermaßen tun:
+Falls man den offiziellen Weg gehen möchte, also einen Private Key erstellen, daraus eine Zertifikatsanforderung generieren, diesen von einer offiziellen Zertifizierungsstelle signieren lassen und das dann erhaltene Zertifikat dann einzubinden - kann man dies folgendermaßen tun:
 
 a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste der private Schlüssel, sowie sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
 
@@ -129,7 +132,7 @@ c) Die Einbindung in ActiveMQ bzw. Jetty funktioniert wie in Punkt d) bzw. e) be
 
 In der jetty.xml:
 ```xml                                                     
-        <property name="keyStorePath" value="/PATH/TO/broker.p12" />
+        <property name="keyStorePath" value="/PATH/TO/zertifikats_keystore.p12" />
         <property name="keyStorePassword" value="GEHEIM" />
         <property name="keyStoreType" value="pkcs12" />
 ```
@@ -137,7 +140,7 @@ In der activemq.xml im sslContext:
 ```xml
         <sslContext>
             <sslContext
-                keyStore="/PATH/TO/broker.ks" keyStorePassword="GEHEIM" keyStoreType="pkcs12" />
+                keyStore="/PATH/TO/zertifikats_keystore.p12" keyStorePassword="GEHEIM" keyStoreType="pkcs12" />
         </sslContext>
 ```
 
