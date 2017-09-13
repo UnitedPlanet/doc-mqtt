@@ -51,13 +51,13 @@ Auszug aus der activemq.xml:
 ...
 ..
 .
-<!-- Hier der Pfad und Passwort des Keystore-Files -->
+<!-- Im sslContext muss der Pfad zur Keystore-Datei sowie das Passwort des Keystore übergeben werden -->
         <sslContext>
             <sslContext
                 keyStore="/PATH/TO/amq_server.ks" keyStorePassword="GEHEIM" />
         </sslContext>
 
-<!-- in den entsprechenden Konnektoren SSL aktivieren, unbenötigte Konnektoren deaktivieren -->
+<!-- in den entsprechenden Konnektoren muss dann SSL aktiviert werden, die unbenötigten Konnektoren sollten am besten deaktiviert werden -->
 
         <transportConnectors>
             <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
@@ -73,7 +73,7 @@ Auszug aus der activemq.xml:
 siehe <http://activemq.apache.org/how-do-i-use-ssl.html>
 
 ### e) Den Keystore in Jetty einbinden
-ActiveMQ stellt eine Weboberfläche bereit, mittels derer man sich einen Überblick über bestimmte Statusinformationen, wie beispielsweise die gerade aktiven Topics, oder auch die gerade angemeldeten Publishern/Subscriber, verschaffen kann. ActiveMQ liefert hierfür den Webserver Jetty von Apache mit aus.
+ActiveMQ stellt eine Weboberfläche bereit, mittels derer man sich einen Überblick über bestimmte Statusinformationen, wie beispielsweise die gerade aktiven Topics, oder auch die gerade angemeldeten Publisher/Subscriber, verschaffen kann. ActiveMQ liefert hierfür den Webserver Jetty von Apache mit aus.
 
 Damit dieser über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss der zuvor erstellte Keystore dort ebenfalls eingebunden werden.
 Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende, aber noch auskommentierte Einträge, welche, wie zuvor bereits im ActiveMQ entsprechend, um Pfad und Passwort des Keystores erweitert werden müssen:
@@ -102,7 +102,13 @@ Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumen
 ### Hinweis zur Verwendung eines offiziell signierten Zertifikates
 Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispiesweise dazu, dass im Webbrower beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
 
-Falls man den offiziellen Weg gehen möchte, also einen Private Key erstellen, daraus eine Zertifikatsanforderung generieren, diesen von einer offiziellen Zertifizierungsstelle signieren lassen und das dann erhaltene Zertifikat dann einzubinden - kann man dies folgendermaßen tun:
+Falls offiziell signierte Zertifikate erstellen möchte, wäre die Vorgehensweise wie folgt:
+* man erstellt einen privaten Schlüssel
+* generiert daraus eine Zertifikatsanforderung
+* lässt diese dann von einer offiziellen Zertifizierungsstelle signieren
+
+Die dann von der Zertifizierungsstelle zurückerhaltenen, signierten Zertifikate liegen meist in unterschiedlichen Formaten vor.
+Am Einfachsten lassen sich die Zertifikate im PEM-Format (im Klartext) einbinden, indem man die entsprechenden Dateien mit einem Texteditor öffnet, den privaten Schlüssel, Zertifikate sowie Zwischenzertifikate kopiert und daraus eine neue Datei, welche die komplette Kette enthält, generiert, also:
 
 a) Man erstellt eine neue Textdatei "zertifikatskette.pem" in die per Copy&Paste der private Schlüssel, sowie sämtliche Zertifikate inklusive BEGIN/END-Prolog eingetragen werden:
 
@@ -150,8 +156,7 @@ In der activemq.xml im sslContext:
 Die Benutzer, die sich an der Webmin-Oberfläche anmelden dürfen, werden in der  <ACTIVEMQ_INST>/conf/jetty-realm.properties definiert.
 
 ### b) Benutzerberechtigungen der Konnektoren
-Die einfachste Möglichkeit ist das direkte Setzen der Berechtigungen in der activemq.xml mittels des SimpleAuthenticationPlugin:
-Über einen entsprechenden authentication-Eintrag fügt man einen neuen Benutzer, sowie Passwort und die Gruppenzugehörigkeit hinzu.
+Die einfachste Möglichkeit ist das direkte Setzen der Berechtigungen in der activemq.xml mittels des "SimpleAuthenticationPlugin". Über einen entsprechenden authentication-Eintrag fügt man einen neuen Benutzer, sowie Passwort und die Gruppenzugehörigkeit hinzu.
 
 Über das authorizationPlugin können dann die Berechtigungen an den Topics/Queues den Benutzern zugewiesen werden. Read- bzw. Write-Permissions dürften selberklärend sein. Die "admin"-Rolle beschreibt in dem Zusammenhang die Rechte ein Topic zu erstellen.
 
