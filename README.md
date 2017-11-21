@@ -35,7 +35,7 @@ Aus der zuvor erstellten Keystore-Datei wird nun der öffentliche Schlüssel sow
 ```sh
 keytool -exportcert -alias amq_server -keystore amq_server.ks -file amq_server.der
 ```
->HINWEIS: das Zertifikat wird hier im DER-Format(also binär) exportiert. Über den weiteren Parameter "-rfc" kann das Zertifikat auch als PEM (als Klartext bzw BASE64-kodiert) gespeichert werden. Der Import des Zertifikates in einen Truststore wird in 2b) beschrieben.
+>HINWEIS: das Zertifikat wird hier im DER-Format(also binär) exportiert. Über den weiteren Parameter "-rfc" kann das Zertifikat auch als PEM (als Klartext bzw BASE64-kodiert) gespeichert werden. Der Import des Zertifikates in einen Truststore, der in Java-Applikationen häufig verwendet wird, geschieht über folgenden Befehl:
 >```sh
 >keytool -importcert -alias amq_client -file amq_client.der -keystore amq_client.ts
 >```
