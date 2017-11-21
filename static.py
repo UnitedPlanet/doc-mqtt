@@ -1,10 +1,13 @@
-server_host = "avvmtemplate.dev.unitedplanet.de"
+#server_host = "avvmtemplate.dev.unitedplanet.de"
+server_host = "thomasf.unitedplanet.de"
 server_port = 8883
-cert_path = "broker.pem"
+cert_path = "/opt/activemq/conf/my_broker_cert.pem"
+privkey_path = "/opt/activemq/conf/my_client_key.pem"
+privcert_path = "/opt/activemq/conf/my_client_cert.pem"
 
 subs_username = "user_cons"
 subs_password = "admin"
-subs_topic = "test-mqtt/fanspeed"
+subs_topic = "test-mqtt/cputemp2"
 subs_clientid = "TomSubsClient"
 
 publ_username = "user_publ"

@@ -10,9 +10,9 @@ Ein MQTT-Client kann entweder als "Listener", also als Teilnehmer der auf Nachri
 Das kann im einfachsten Szenario genügen, um beispielsweise per Smartphone regelmäßige Berichte der Pegelhöhe eines Wasserkraftwerkes zugestellt zu bekommen.
 Sobald aber mehrere Clients im Spiel sind und verschiedene Topic-Stränge existieren bzw. verwendet werden sollen, oder der Zugriff entsprechend gesichert werden soll, bietet es sich an, einen sogenannten "Broker", also einen MQTT-Server zu verwenden. Dieser bietet zudem die Möglichkeit weitere Protokolle, wie beispielsweise JMS(Java Messaging Service), einzubinden.
 
->Hinweise zur Dokumentation:
-* wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
-* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers, in der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
+>### Hinweise zur Dokumentation:
+>* wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
+>* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers, in der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
 >
 
 ## 1) SSL-Verschlüsselung
@@ -33,16 +33,25 @@ Ausserdem sollte die Datei, da Sie den privaten Schlüssel des ActiveMQ enthält
 ### b) Das Zertifikat für die Clients exportieren
 Aus der zuvor erstellten Keystore-Datei wird nun der öffentliche Schlüssel sowie das Zertifikat generiert:
 ```sh
-keytool -exportcert -alias amq_server -keystore amq_server.ks -file amq_server.cert
+keytool -exportcert -alias amq_server -keystore amq_server.ks -file amq_server.der
 ```
+>HINWEIS: das Zertifikat wird hier im DER-Format(also binär) exportiert. Über den weiteren Parameter "-rfc" kann das Zertifikat auch als PEM (als Klartext bzw BASE64-kodiert) gespeichert werden. Der Import des Zertifikates in einen Truststore wird in 2b) beschrieben.
+>```sh
+>keytool -importcert -alias amq_client -file amq_client.der -keystore amq_client.ts
+>```
+>
 
 ### c) Das Zertifikat in Intrexx importieren
-Damit Intrexx dann später eine verschlüsselte TLS-Verbindung zum ActiveMQ-Server herstellen kann, muss die gerade erstellte amq_server.cert nun in Intrexx eingebunden werden.
-Hierzu muss man im Portal manager im entsprechenden Portal unter "Eigenschaften" ->  "Zertifikate" den Zertifikatsspeicher öffnen, und dort die amq_server.cert über "Import der Datei" zu den Zertifikaten hinzufügen. 
+Damit Intrexx dann später eine verschlüsselte TLS-Verbindung zum ActiveMQ-Server herstellen kann, muss die gerade erstellte amq_server.der nun in Intrexx eingebunden werden.
+Hierzu muss man im Portal manager im entsprechenden Portal unter "Eigenschaften" ->  "Zertifikate" den Zertifikatsspeicher öffnen, und dort die amq_server.der über "Import der Datei" zu den Zertifikaten hinzufügen. 
 Damit die Änderung greift, muss der Portal-Dienst neu gestartet werden.
 
 ### d) SSL in ActiveMQ aktivieren und Keystore mit dem privaten Schlüssel einbinden
 Hierzu muss in der <ACTIVEMQ_INST>/conf/activemq.xml im "core"-Namespace der Pfad zu dem erstellten Keystore, sowie dessen Passwort übergeben werden. Da da Passwort im Klartext vorliegt, sollte die activemq.xml entsprechend vor unberechtigtem Zugriff geschützt sein.
+
+>HINWEIS: für die Pfadangaben sollten laut ActiveMQ-Dokumentation relative Pfade verwendet werden. Das Arbeitsverzeichnis ist per Default <ACTIVEMQ_INST>/conf/, d.h.  liegt die "amq_server.ks" direkt in diesem Verzeichnis, genügt die Angabe 
+>keyStore="amq_server.ks".
+>
 
 Auszug aus der activemq.xml:
 
@@ -52,23 +61,24 @@ Auszug aus der activemq.xml:
 ..
 .
 <!-- Im sslContext muss der Pfad zur Keystore-Datei sowie das Passwort des Keystore übergeben werden -->
-        <sslContext>
-            <sslContext
-                keyStore="/PATH/TO/amq_server.ks" keyStorePassword="GEHEIM" />
-        </sslContext>
+    <sslContext>
+        <sslContext
+            keyStore="/PATH/TO/amq_server.ks" keyStorePassword="GEHEIM" />
+    </sslContext>
 
-<!-- in den entsprechenden Konnektoren muss dann SSL aktiviert werden, die unbenötigten Konnektoren sollten am besten deaktiviert werden -->
+<!-- in den entsprechenden Konnektoren muss dann SSL aktiviert werden, die unbenötigten Konnektoren sollten am besten deaktiviert werden, 
+Hinweis: openwire wird für die Verbindung zu Intrexx via JMS benötigt-->
 
-        <transportConnectors>
-            <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
-            <!-- <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/> -->
-            <transportConnector name="openwire" uri="ssl://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
-            <transportConnector name="mqtt+ssl" uri="mqtt+ssl://0.0.0.0:8883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
-            <!-- transportConnector name="amqp" uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
-            <transportConnector name="stomp" uri="stomp://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
-            <transportConnector name="mqtt" uri="mqtt://0.0.0.0:1883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
-            <transportConnector name="ws" uri="ws://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/ -->
-        </transportConnectors>
+    <transportConnectors>
+        <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
+        <!-- <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/> -->
+        <transportConnector name="openwire" uri="ssl://0.0.0.0:61616?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        <transportConnector name="mqtt+ssl" uri="mqtt+ssl://0.0.0.0:8883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        <!-- transportConnector name="amqp" uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        <transportConnector name="stomp" uri="stomp://0.0.0.0:61613?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        <transportConnector name="mqtt" uri="mqtt://0.0.0.0:1883?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+        <transportConnector name="ws" uri="ws://0.0.0.0:61614?maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/ -->
+    </transportConnectors>
 ```
 siehe <http://activemq.apache.org/how-do-i-use-ssl.html>
 
@@ -82,19 +92,19 @@ Damit dieser über eine verschlüsselte HTTPS-Verbindung erreichbar ist, muss de
 Hierzu gibt es in der <ACTIVEMQ_INST>/conf/jetty.xml bereits entsprechende, aber noch auskommentierte Einträge, welche, wie zuvor bereits im ActiveMQ entsprechend, um Pfad und Passwort des Keystores erweitert werden müssen:
 
 ```xml
-        <!--
-            Enable this connector if you wish to use https with web console
-        -->
-        <bean id="SecureConnector" class="org.eclipse.jetty.server.ServerConnector">
-            <constructor-arg ref="Server" />
-            <constructor-arg>
-                <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
-                    <property name="keyStorePath" value="/PATH/TO/amq_server.ks" />
-                    <property name="keyStorePassword" value="GEHEIM" />
-                </bean>
-            </constructor-arg>
-            <property name="port" value="8162" />
-        </bean>
+    <!--
+        Enable this connector if you wish to use https with web console
+    -->
+    <bean id="SecureConnector" class="org.eclipse.jetty.server.ServerConnector">
+        <constructor-arg ref="Server" />
+        <constructor-arg>
+            <bean id="handlers" class="org.eclipse.jetty.util.ssl.SslContextFactory">
+                <property name="keyStorePath" value="/PATH/TO/amq_server.ks" />
+                <property name="keyStorePassword" value="GEHEIM" />
+            </bean>
+        </constructor-arg>
+        <property name="port" value="8162" />
+    </bean>
 ```
 
 Damit die Umleitung von HTTP auf HTTPS funktioniert, muss dann noch ein entsprechender Eintrag in der web.xml vorgenommen werden.
@@ -102,8 +112,47 @@ Dies wird im Abschnitt "Redirecting http requests to https" in der Jetty-Dokumen
 
 <https://wiki.eclipse.org/Jetty/Howto/Configure_SSL>
 
+## 2) SSL - Client-seitige Authentifizierung
+
+Mit der Vorgehensweise in Punkt 1) ist nun einen Server-seitige Authentizizierung sichergestellt, ausserdem wurde die Verschlüsselung für die Verbindung aktiviert. Ein zusätzlicher Sicherheitsgewinn kann dadurch erreicht werden, dass sich der Client authentifieren muss. Die Einrichtung ist identisch zu der Vorgehensweise in Punkt 1), nur dass in diesem Fall ein Privater Schlüssel für den Client erzeugt wird, das entsprechende Zertifikat mit enthaltenem öffentlichen Schlüssel aber nun auf Server-Seite eingebunden wird.
+
+### a) Einen Keystore mit einem selbstsignierten privaten Schlüssel für den Client erstellen:
+Zuerst erstellen wir einen Schlüsselbund(Keystore), der den privaten Schlüssel enthält:
+```sh
+keytool -genkey -alias amq_client -keyalg RSA -keystore amq_client.ks
+```
+
+### b) Das Zertifikat mit enthaltenem öffentlichen Schlüssel für den ActiveMQ-Server exportieren
+Aus der zuvor erstellten Keystore-Datei wird nun der öffentliche Schlüssel sowie das Zertifikat generiert:
+```sh
+keytool -exportcert -alias amq_client -keystore amq_client.ks -file amq_client.der
+```
+
+Für die spätere Einbindung in ActiveMQ muss das nun exportierte Zertifikat, welches momentan im DER(binär)-Format vorliegt, in einen Keystore bzw. Truststore importiert werden:
+```sh
+keytool -importcert -alias amq_client -file amq_client.der -keystore amq_client.ts
+```
+
+### c) Client-Authentifizierung in ActiveMQ aktivieren und den Truststore mit dem Zertifikat und öffentlichen Schlüssel einbinden
+
+Im entsprechenden sslContext-Abschnitt der <ACTIVEMQ_INST>/conf/activemq.xml, den wir in 1d) bereits erzeugt hatten, wird nun noch der Truststore, welche die entsprechenden Client-Zertifikate beinhaltet, als weiterer Parameter angegeben:
+
+```xml
+    <sslContext>
+        <sslContext
+            keyStore="/PATH/TO/amq_server.ks" keyStorePassword="GEHEIM"
+            trustStore="/PATH/TO/amq_client.ts" trustStorePassword="GEHEIM" />
+    </sslContext>
+```
+
+Die Client-Authentifizierung wird nun im entsprechenden Konnektor über den zusätzlichen URI-Parameter "needClientAuth=false" aktiviert, also für den Mqtt-Konnektor beispielsweise wie folgt:
+
+```xml
+    <transportConnector name="ssl" uri="mqtt+ssl://0.0.0.0:8883?needClientAuth=false&amp;maximumConnections=1000&amp;wireFormat.maxFrameSize=104857600"/>
+```
+
 ### Hinweis zur Verwendung eines offiziell signierten Zertifikates
-Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispiesweise dazu, dass im Webbrower beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
+Die oben genannten Punkte beschreiben die einfachste Vorgehensweise über ein selbsigniertes Zertifikat. Der Vorteil dabei ist, dass man die Verbindung auf einfache Weise verschlüsseln kann. Da das Zertifikat aber selbstsigniert ist, und eben nicht von einer offiziellen Zertifikatsstelle (CA Authority) signiert wurde ist die Vertrauenskette (Chain of Trust) nicht gewährleistet. Das führt beispielsweise dazu, dass im Webbrower beim Zugriff auf die ActiveMQ Webmin-Oberfläche ein Warnhinweis erscheint, da der Ersteller nicht bekannt ist.
 
 Falls offiziell signierte Zertifikate erstellen möchte, wäre die Vorgehensweise wie folgt:
 * man erstellt einen privaten Schlüssel
