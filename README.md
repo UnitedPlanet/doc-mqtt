@@ -12,7 +12,7 @@ Sobald aber mehrere Clients im Spiel sind und verschiedene Topic-Stränge existi
 
 >### Hinweise zur Dokumentation:
 >* wir verwenden für die Anbindung an Intrexx den von Apache entwickelten ActiveMQ-Server, der frei unter der Apache 2.0 Lizenz verfügbar ist.
->* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers, in der von Unitplanet GmbH bereitgtestellten TestVM ist der Installationspfad `/opt/activemq`.
+>* das im Folgenden verwendete Kürzel `<ACTIVE_MQ_INST>`  bezieht sich auf den Installtionspfad des ActiveMQ-Servers, in der von United Planet GmbH bereitgestellten Test-VM ist der Installationspfad `/opt/activemq`.
 >
 
 ## 1) SSL-Verschlüsselung
